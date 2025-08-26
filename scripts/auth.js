@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     console.log('Login success:', data);
                     localStorage.setItem('token', data.token);
-                    window.location.href = 'index.html';
+                    window.location.href = '/lnk-aws/index.html';
                 } else {
                     const errorData = await response.json();
                     console.log('Login error:', errorData);
