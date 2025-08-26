@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             try {
-                const response = await fetch('https://your-lambda-endpoint.amazonaws.com/queryTable', {
+                const response = await fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/deploy/query/newConstruction', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
