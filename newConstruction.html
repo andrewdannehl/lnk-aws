@@ -13,7 +13,7 @@
         const formData = new FormData(form);
         const jsonData = Object.fromEntries(formData.entries());
 
-        fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/deploy', {
+        fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/query/newConstruction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(jsonData)
