@@ -1,18 +1,3 @@
-// Convert form inputs to numbers
-  const priceNum = parseFloat(price);
-  const sqFtNum = parseFloat((sqFt || '').toString().replace(/[^0-9.]/g, ''));
-  const lotNum = parseFloat(lot);
-  const subjectPricePerSF = parseFloat(price / sqFt);
-  const pricePerSFmin = parseFloat(minPricePerSF + subjectPricePerSF);
-  const pricePerSFmax = parseFloat(maxPricePerSF + subjectPricePerSF);
-  const minSF = parseFloat(minSqFt) + parseFloat(sqFt);
-  const maxSF = parseFloat(maxSqFt) + parseFloat(sqFt);
-  //const minLot = parseFloat(minLotSize) + parseFloat(lot);
-  //const maxLot = parseFloat(maxLotSize) + parseFloat(lot);
-  const monthsSoldWithin = parseInt(soldWithin);
-  const yearsBuiltWithin = parseInt(builtWithin);
-
-
 document.addEventListener('DOMContentLoaded', function() {
     const queryForm = document.getElementById('newConstructionForm');
     const queryMessage = document.getElementById('queryMessage');
@@ -38,12 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Build the payload for Lambda
             const data = {
-                pricePerSFmin,
-                pricePerSFmax,
-                minSF,
-                maxSF,
-                monthsSoldWithin,
-                yearsBuiltWithin
+                minPricePerSF: isNaN(pricePerSFmin) ? null : pricePerSFmin,
+                maxPricePerSF: isNaN(pricePerSFmax) ? null : pricePerSFmax,
+                minSF: isNaN(minSF) ? null : minSF,
+                maxSF: isNaN(maxSF) ? null : maxSF,
+                monthsSoldWithin: isNaN(monthsSoldWithin) ? null : monthsSoldWithin,
+                yearsBuiltWithin: isNaN(yearsBuiltWithin) ? null : yearsBuiltWithin
             };
 
             try {
