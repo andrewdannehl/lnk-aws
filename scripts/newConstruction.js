@@ -1,0 +1,68 @@
+// Convert form inputs to numbers
+  const priceNum = parseFloat(price);
+  const sqFtNum = parseFloat((sqFt || '').toString().replace(/[^0-9.]/g, ''));
+  const lotNum = parseFloat(lot);
+  const subjectPricePerSF = parseFloat(price / sqFt);
+  const pricePerSFmin = parseFloat(minPricePerSF + subjectPricePerSF);
+  const pricePerSFmax = parseFloat(maxPricePerSF + subjectPricePerSF);
+  const minSF = parseFloat(minSqFt) + parseFloat(sqFt);
+  const maxSF = parseFloat(maxSqFt) + parseFloat(sqFt);
+  //const minLot = parseFloat(minLotSize) + parseFloat(lot);
+  //const maxLot = parseFloat(maxLotSize) + parseFloat(lot);
+  const monthsSoldWithin = parseInt(soldWithin);
+  const yearsBuiltWithin = parseInt(builtWithin);
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const queryForm = document.getElementById('newConstructionForm');
+    const queryMessage = document.getElementById('queryMessage');
+
+    if (queryForm) {
+        queryForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(queryForm);
+            const raw = Object.fromEntries(formData.entries());
+
+            // Parse and calculate derived values
+            const priceNum = parseFloat(raw.price);
+            const sqFtNum = parseFloat((raw.sqFt || '').toString().replace(/[^0-9.]/g, ''));
+            const lotNum = parseFloat(raw.lot);
+            const subjectPricePerSF = priceNum / sqFtNum;
+
+            const pricePerSFmin = parseFloat(raw.minPricePerSF) + subjectPricePerSF;
+            const pricePerSFmax = parseFloat(raw.maxPricePerSF) + subjectPricePerSF;
+            const minSF = parseFloat(raw.minSF) + sqFtNum;
+            const maxSF = parseFloat(raw.maxSF) + sqFtNum;
+            const monthsSoldWithin = parseInt(raw.monthsSoldWithin);
+            const yearsBuiltWithin = parseInt(raw.yearsBuiltWithin);
+
+            // Build the payload for Lambda
+            const data = {
+                pricePerSFmin,
+                pricePerSFmax,
+                minSF,
+                maxSF,
+                monthsSoldWithin,
+                yearsBuiltWithin
+            };
+
+            try {
+                const response = await fetch('https://your-lambda-endpoint.amazonaws.com/queryTable', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    queryMessage.textContent = 'Query successful!';
+                    // Optionally display result data
+                } else {
+                    const errorData = await response.json();
+                    queryMessage.textContent = errorData.message || 'Query failed.';
+                }
+            } catch (error) {
+                queryMessage.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+    }
+});

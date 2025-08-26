@@ -11,5 +11,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    checkLogin();
+    //checkLogin();
 });
