@@ -1,15 +1,94 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const queryForm = document.getElementById('newConstructionForm');
+    const addressInput = document.querySelector('#address');
+    const addressSuggestions = document.querySelector('#addressSuggestions');
+    const priceInput = document.querySelector('#price');
+    const sqFtInput = document.querySelector('#sqFt');
+    const form = document.querySelector('#residentialForm');
     const queryMessage = document.getElementById('queryMessage');
 
-    if (queryForm) {
-        queryForm.addEventListener('submit', async function (event) {
+    // API Gateway base URL - matches your existing newConstruction.js setup
+    const API_BASE = 'https://q2g27tp299.execute-api.us-east-2.amazonaws.com';
+
+    let debounceTimer;
+
+    // Function to update suggestions
+    function updateSuggestions(matches) {
+        if (!matches || matches.length === 0) {
+            addressSuggestions.style.display = 'none';
+            return;
+        }
+
+        addressSuggestions.innerHTML = matches.map(address => `
+            <div class="suggestion-item">${address}</div>
+        `).join('');
+        
+        addressSuggestions.style.display = 'block';
+    }
+
+    // Handle input changes with debounce
+    addressInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const input = this.value;
+        
+        if (input.length < 2) {
+            addressSuggestions.style.display = 'none';
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            // Fetch matching addresses from the server
+            fetch(`${API_BASE}/query/address?search=${encodeURIComponent(input)}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`Server returned ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && Array.isArray(data.addresses)) {
+                        updateSuggestions(data.addresses);
+                    } else {
+                        console.error("Unexpected response format:", data);
+                        updateSuggestions([]);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error searching addresses:", err);
+                    queryMessage.textContent = 'Failed to search addresses. Please try again.';
+                    updateSuggestions([]);
+                });
+        }, 300);
+    });
+
+    // Handle suggestion clicks
+    addressSuggestions.addEventListener('click', function(e) {
+        const item = e.target.closest('.suggestion-item');
+        if (!item) return;
+
+        const selectedAddress = item.textContent;
+        addressInput.value = selectedAddress;
+        addressSuggestions.style.display = 'none';
+
+        fetch(`${API_BASE}/query/property?address=${encodeURIComponent(selectedAddress)}`)
+            .then(res => res.json())
+            .then(data => {
+                priceInput.value = data.price || '';
+                sqFtInput.value = data.sqFt || '';
+            })
+            .catch(err => {
+                console.error("Error loading property:", err);
+                queryMessage.textContent = 'Failed to load property details. Please try again later.';
+            });
+    });
+
+    if (form) {
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
-            const formData = new FormData(queryForm);
+            const formData = new FormData(form);
             const raw = Object.fromEntries(formData.entries());
 
-            // ---- Adjust min/max values based on subject property ----
+            // Adjust min/max values based on subject property
             const priceNum = parseFloat(raw.price);
             const sqFtNum = parseFloat(raw.sqFt);
 
@@ -21,19 +100,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const maxPricePerSFAdj = subjectPricePerSF + parseFloat(raw.maxPricePerSF);
 
             const data = {
+                address: raw.address,
                 minPricePerSF: minPricePerSFAdj,
                 maxPricePerSF: maxPricePerSFAdj,
                 minSqFt: minSqFtAdj,
                 maxSqFt: maxSqFtAdj,
                 soldWithin: parseInt(raw.soldWithin),
-                builtWithin: parseInt(raw.builtWithin)
+                builtWithin: parseInt(raw.builtWithin),
+                distance: parseFloat(raw.distance)
             };
 
             console.log('Payload sent to Lambda:', data);
 
             try {
                 const response = await fetch(
-                    'https://q2g27tp299.execute-api.us-east-2.amazonaws.com/query/newConstruction',
+                    `${API_BASE}/query/residential`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -57,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 queryMessage.textContent = 'Query successful!';
 
-                // ---- Render results table ----
+                // Render results table
                 if (result.properties && Array.isArray(result.properties)) {
                     const tableHTML = `
                         <table id="resultsTable" style="width:100%; border-collapse: collapse;">
@@ -81,8 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             !isNaN(parseFloat(p.dollarsPerSF))
                                                 ? parseFloat(p.dollarsPerSF).toLocaleString()
                                                 : p.dollarsPerSF || ''
-                                            }
-                                        </td>
+                                        }</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -98,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// ---- Sorting function ----
+// Sorting function - matches your existing implementation
 let sortDirection = {};
 window.sortTable = function (colIndex) {
     const table = document.getElementById('resultsTable');

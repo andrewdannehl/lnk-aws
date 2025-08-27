@@ -24,7 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     console.log('Login success:', data);
                     localStorage.setItem('token', data.token);
-                    window.location.href = '/lnk-aws/index.html';
+                    // Redirect based on environment
+                    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                        window.location.href = '/index.html';
+                    } else {
+                        window.location.href = '/lnk-aws/index.html';
+                    }
                 } else {
                     const errorData = await response.json();
                     console.log('Login error:', errorData);

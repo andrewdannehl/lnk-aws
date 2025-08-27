@@ -14,13 +14,17 @@ const corsResponse = (statusCode, body) => ({
 exports.handler = async (event) => {
   console.log("Lambda invoked", event);
   let parsedBody;
-  try {
-    parsedBody = JSON.parse(event.body);
-  } catch (err) {
-    console.error("Failed to parse event.body", event.body);
-    return corsResponse(400, { error: "Invalid JSON in request body" });
+  
+  // Only try to parse body for POST requests
+  if (event.httpMethod === 'POST') {
+    try {
+      parsedBody = JSON.parse(event.body);
+    } catch (err) {
+      console.error("Failed to parse event.body", event.body);
+      return corsResponse(400, { error: "Invalid JSON in request body" });
+    }
+    console.log("Parsed body:", parsedBody);
   }
-  console.log("Parsed body:", parsedBody);
   let connection;
   try {
     connection = await mysql.createConnection({
@@ -75,7 +79,53 @@ exports.handler = async (event) => {
         console.log(`queryParam[${idx}]:`, param, "Type:", typeof param);
       });
     }
-    // ...existing code for other paths...
+    else if (path.includes('address')) {
+      // Fetch addresses matching the search term
+      const searchTerm = event.queryStringParameters?.search || '';
+      if (searchTerm.length < 2) {
+        return corsResponse(200, { addresses: [] });
+      }
+      query = 'SELECT DISTINCT address FROM property WHERE address LIKE ? ORDER BY address ASC LIMIT 10';
+      queryParams = [`%${searchTerm}%`];
+    } 
+    else if (path.includes('property') && event.queryStringParameters?.address) {
+      // Fetch property details for a specific address
+      query = 'SELECT price, sqFt FROM property WHERE address = ? LIMIT 1';
+      queryParams = [event.queryStringParameters.address];
+    }
+    else if (path.includes('residential')) {
+      const {
+        address,
+        minPricePerSF,
+        maxPricePerSF,
+        minSqFt,
+        maxSqFt,
+        soldWithin,
+        builtWithin,
+        distance // Not used yet, but captured for future use
+      } = parsedBody;
+
+      query = `
+        SELECT 
+          *,
+          DATE_FORMAT(dateSold, '%m/%d/%Y') AS dateSoldFormatted
+        FROM property
+        WHERE 
+          dollarsPerSF BETWEEN ? AND ?
+          AND sqFt BETWEEN ? AND ?
+          AND dateSold >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
+          AND yrBuilt >= YEAR(CURDATE()) - ?
+      `;
+      queryParams = [
+        minPricePerSF,
+        maxPricePerSF,
+        minSqFt,
+        maxSqFt,
+        soldWithin,
+        builtWithin
+      ];
+    }
+    else
 
     console.log("Executing query:", query, "with params:", queryParams);
     const [rows] = await connection.execute(query, queryParams);
@@ -83,11 +133,17 @@ exports.handler = async (event) => {
 
     await connection.end();
 
-    return corsResponse(200, {
-       properties: rows.map(row => ({
-        ...row,
-        dateSoldFormatted: row.dateSoldFormatted || null
-      })) });
+    // Format response based on the endpoint
+    if (path.includes('address')) {
+      return corsResponse(200, { addresses: rows.map(row => row.address) });
+    } else {
+      return corsResponse(200, {
+        properties: rows.map(row => ({
+          ...row,
+          dateSoldFormatted: row.dateSoldFormatted || null
+        }))
+      });
+    }
   } catch (error) {
     console.error("Caught error:", error);
     if (connection) await connection.end();
