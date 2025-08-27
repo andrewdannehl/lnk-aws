@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <td>${p.address}</td>
                                             <td>$${Number(p.price).toLocaleString()}</td>
                                             <td>${Number(p.sqFt).toLocaleString()}</td>
-                                            <td>${p.dateSold ? new Date(p.dateSold).toISOString().slice(0, 10) : ''}</td>
+                                            <td>${p.dateSold && !isNaN(Date.parse(p.dateSold)) ? new Date(p.dateSold).toLocaleDateString('en-US') : ''}</td>
                                             <td>$${Number(p.dollarsPerSF).toLocaleString()}</td>
                                         </tr>
                                     `).join('')}
