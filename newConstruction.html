@@ -95,70 +95,35 @@
   <h1>New Construction Submission</h1>
 
   <form id="newConstructionForm">
-  <!-- Property Details -->
-  <label for="address">Street Address</label>
-  <input type="text" id="address" name="address" required>
-
-  <label for="zip">Zip Code</label>
-  <input type="text" id="zip" name="zip" required>
-
+  <!-- Only the following fields are used for the query: -->
   <label for="price">Price ($)</label>
   <input type="text" id="price" name="price" required>
 
   <label for="sqFt">Square Feet</label>
   <input type="text" id="sqFt" name="sqFt" required>
 
-  <label for="lot">Lot Size (SF)</label>
-  <input type="number" id="lot" name="lot" step="100" required>
-
-  <hr>
-  <h2>Filters</h2>
-
-  <!-- Filter Sliders & Inputs -->
   <div class="slider-group">
-    <!-- Distance Slider -->
-    <div class="slider-label">
-      <label for="distance">Distance (miles)</label>
-      <span class="value-display" id="distanceVal">0</span>
-    </div>
-    <input type="range" id="distance" name="distance" min="0" max="10" step="0.1" value="1" oninput="distanceVal.innerText = this.value">
-    <!-- Square Feet Min/Max -->
     <div class="slider-label">
       <label>Square Feet +/-</label>
       <input type="number" name="minSqFt" placeholder="Min" min="-500" max="0" step="10" value="-250">
       <input type="number" name="maxSqFt" placeholder="Max" min="0" max="500" step="10" value="250">
     </div>
-
-    <!-- $/SF Min/Max -->
     <div class="slider-label">
       <label>$/SF +/-</label>
       <input type="number" name="minPricePerSF" placeholder="Min" min="-50" max="0" step="1" value="-20">
       <input type="number" name="maxPricePerSF" placeholder="Max" min="0" max="50" step="1" value="20">
     </div>
-
-    <!-- Lot Size Min/Max -->
-    <div class="slider-label">
-      <label>Lot Size (sqft) +/-</label>
-      <input type="number" name="minLotSize" placeholder="Min" min="-5000" max="0" step="100" value="-3000">
-      <input type="number" name="maxLotSize" placeholder="Max" min="0" max="5000" step="100" value="3000">
-    </div>
-
-    <!-- Built Within Slider -->
     <div class="slider-label">
       <label for="builtWithin">Built Within (years)</label>
       <span class="value-display" id="builtWithinVal">3</span>
     </div>
     <input type="range" id="builtWithin" name="builtWithin" min="0" max="60" step="1" value="3" oninput="builtWithinVal.innerText = this.value">
-
-    <!-- Sold Within Slider -->
     <div class="slider-label">
       <label for="soldWithin">Sold Within (months)</label>
       <span class="value-display" id="soldWithinVal">12</span>
     </div>
     <input type="range" id="soldWithin" name="soldWithin" min="0" max="120" step="1" value="12" oninput="soldWithinVal.innerText = this.value">
-
   </div>
-
   <button type="submit" id="submit">Submit All</button>
   </form>
   <div id="queryMessage"></div>

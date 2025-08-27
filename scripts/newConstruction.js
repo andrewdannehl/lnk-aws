@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 monthsSoldWithin: isNaN(monthsSoldWithin) ? null : monthsSoldWithin,
                 yearsBuiltWithin: isNaN(yearsBuiltWithin) ? null : yearsBuiltWithin
             };
+                console.log('Payload sent to Lambda:', data);
 
             try {
                 const response = await fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/query/newConstruction', {
