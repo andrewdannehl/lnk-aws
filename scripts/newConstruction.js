@@ -11,20 +11,31 @@ document.addEventListener('DOMContentLoaded', function() {
             // Parse and calculate derived values
             const priceNum = parseFloat(raw.price);
             const sqFtNum = parseFloat((raw.sqFt || '').toString().replace(/[^0-9.]/g, ''));
-            const minPricePerSF = parseFloat(raw.minPricePerSF) + (priceNum / sqFtNum);
-            const maxPricePerSF = parseFloat(raw.maxPricePerSF) + (priceNum / sqFtNum);
-            const minSF = parseFloat(raw.minSqFt) + sqFtNum;
-            const maxSF = parseFloat(raw.maxSqFt) + sqFtNum;
-            const monthsSoldWithin = parseInt(raw.soldWithin);
-            const yearsBuiltWithin = parseInt(raw.builtWithin);
+            const subjectPricePerSF = priceNum / sqFtNum;
+            const minPricePerSF = parseFloat(raw.minPricePerSF) + subjectPricePerSF;
+            const maxPricePerSF = parseFloat(raw.maxPricePerSF) + subjectPricePerSF;
+            const minSqFt = parseFloat(raw.minSqFt) + sqFtNum;
+            const maxSqFt = parseFloat(raw.maxSqFt) + sqFtNum;
+            const soldWithin = parseInt(raw.soldWithin);
+            const builtWithin = parseInt(raw.builtWithin);
 
             const data = {
-            minPricePerSF: isNaN(minPricePerSF) ? null : minPricePerSF,
-            maxPricePerSF: isNaN(maxPricePerSF) ? null : maxPricePerSF,
-            minSF: isNaN(minSF) ? null : minSF,
-            maxSF: isNaN(maxSF) ? null : maxSF,
-            monthsSoldWithin: isNaN(monthsSoldWithin) ? null : monthsSoldWithin,
-            yearsBuiltWithin: isNaN(yearsBuiltWithin) ? null : yearsBuiltWithin
+                minPricePerSF,
+                maxPricePerSF,
+                minSqFt,
+                maxSqFt,
+                soldWithin,
+                builtWithin
+            };
+                console.log('Payload sent to Lambda:', data);
+
+            try {
+                const response = await fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/query/newConstruction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                builtWithin: parseInt(raw.builtWithin)
             };
                 console.log('Payload sent to Lambda:', data);
 
