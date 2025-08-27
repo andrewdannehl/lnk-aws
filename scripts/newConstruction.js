@@ -51,21 +51,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${result.properties.map(p => {
-                                        let saleDate = '';
-                                        if (p.dateSold && !isNaN(Date.parse(p.dateSold))) {
-                                            saleDate = new Date(p.dateSold).toLocaleDateString('en-US');
-                                        }
-                                        return `
-                                            <tr>
-                                                <td>${p.address}</td>
-                                                <td>$${Number(p.price).toLocaleString()}</td>
-                                                <td>${Number(p.sqFt).toLocaleString()}</td>
-                                                <td>${saleDate}</td>
-                                                <td>$${Number(p.dollarsPerSF).toLocaleString()}</td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
+                                    ${data.properties.map(p => `
+                                        <tr>
+                                            <td>${p.address}</td>
+                                            <td>$${Number(p.price).toLocaleString()}</td>
+                                            <td>${Number(p.sqFt).toLocaleString()}</td>
+                                            <td>${new Date(p.dateSoldFormatted).toISOString().slice(0, 10)}</td>
+                                            <td>$${Number(p.pricePerSF).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
                                 </tbody>
                             </table>
                         `;
