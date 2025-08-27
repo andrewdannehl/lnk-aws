@@ -11,24 +11,20 @@ document.addEventListener('DOMContentLoaded', function() {
             // Parse and calculate derived values
             const priceNum = parseFloat(raw.price);
             const sqFtNum = parseFloat((raw.sqFt || '').toString().replace(/[^0-9.]/g, ''));
-            const lotNum = parseFloat(raw.lot);
-            const subjectPricePerSF = priceNum / sqFtNum;
+            const minPricePerSF = parseFloat(raw.minPricePerSF) + (priceNum / sqFtNum);
+            const maxPricePerSF = parseFloat(raw.maxPricePerSF) + (priceNum / sqFtNum);
+            const minSF = parseFloat(raw.minSqFt) + sqFtNum;
+            const maxSF = parseFloat(raw.maxSqFt) + sqFtNum;
+            const monthsSoldWithin = parseInt(raw.soldWithin);
+            const yearsBuiltWithin = parseInt(raw.builtWithin);
 
-            const pricePerSFmin = parseFloat(raw.minPricePerSF) + subjectPricePerSF;
-            const pricePerSFmax = parseFloat(raw.maxPricePerSF) + subjectPricePerSF;
-            const minSF = parseFloat(raw.minSF) + sqFtNum;
-            const maxSF = parseFloat(raw.maxSF) + sqFtNum;
-            const monthsSoldWithin = parseInt(raw.monthsSoldWithin);
-            const yearsBuiltWithin = parseInt(raw.yearsBuiltWithin);
-
-            // Build the payload for Lambda
             const data = {
-                minPricePerSF: isNaN(pricePerSFmin) ? null : pricePerSFmin,
-                maxPricePerSF: isNaN(pricePerSFmax) ? null : pricePerSFmax,
-                minSF: isNaN(minSF) ? null : minSF,
-                maxSF: isNaN(maxSF) ? null : maxSF,
-                monthsSoldWithin: isNaN(monthsSoldWithin) ? null : monthsSoldWithin,
-                yearsBuiltWithin: isNaN(yearsBuiltWithin) ? null : yearsBuiltWithin
+            minPricePerSF: isNaN(minPricePerSF) ? null : minPricePerSF,
+            maxPricePerSF: isNaN(maxPricePerSF) ? null : maxPricePerSF,
+            minSF: isNaN(minSF) ? null : minSF,
+            maxSF: isNaN(maxSF) ? null : maxSF,
+            monthsSoldWithin: isNaN(monthsSoldWithin) ? null : monthsSoldWithin,
+            yearsBuiltWithin: isNaN(yearsBuiltWithin) ? null : yearsBuiltWithin
             };
                 console.log('Payload sent to Lambda:', data);
 
