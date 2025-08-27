@@ -37,7 +37,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.ok) {
                     const result = await response.json();
                     queryMessage.textContent = 'Query successful!';
-                    // Optionally display result data
+                    // Render results table with formatted date
+                    if (result.properties && Array.isArray(result.properties)) {
+                        const tableHTML = `
+                            <table id="resultsTable" style="width:100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: #ddd;">
+                                        <th>Address</th>
+                                        <th>Price ($)</th>
+                                        <th>SqFt</th>
+                                        <th>Sale Date</th>
+                                        <th>$/SF</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${result.properties.map(p => `
+                                        <tr>
+                                            <td>${p.address}</td>
+                                            <td>$${Number(p.price).toLocaleString()}</td>
+                                            <td>${Number(p.sqFt).toLocaleString()}</td>
+                                            <td>${p.dateSold ? new Date(p.dateSold).toISOString().slice(0, 10) : ''}</td>
+                                            <td>$${Number(p.dollarsPerSF).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                        document.getElementById('resultsContainer').innerHTML = tableHTML;
+                    }
                 } else {
                     const errorData = await response.json();
                     queryMessage.textContent = errorData.message || 'Query failed.';
