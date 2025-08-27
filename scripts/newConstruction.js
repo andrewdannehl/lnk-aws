@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <td>${p.address}</td>
                                             <td>$${Number(p.price).toLocaleString()}</td>
                                             <td>${Number(p.sqFt).toLocaleString()}</td>
-                                            <td>${new Date(p.dateSoldFormatted).toISOString().slice(0, 10)}</td>
+                                            <td>${new Date(p.dateSoldFormatted) || ''}</td>
                                             <td>$${Number(p.pricePerSF).toLocaleString()}</td>
                                         </tr>
                                     `).join('')}

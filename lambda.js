@@ -52,7 +52,9 @@ exports.handler = async (event) => {
       console.log("yearsBuiltWithin:", builtWithin);
 
       query = `
-        SELECT *
+        SELECT 
+          *, 
+          DATE_FORMAT(dateSold, '%m/%d/%Y') AS dateSoldFormatted
         FROM property
         WHERE 
           dollarsPerSF BETWEEN ? AND ?
@@ -78,15 +80,14 @@ exports.handler = async (event) => {
     console.log("Executing query:", query, "with params:", queryParams);
     const [rows] = await connection.execute(query, queryParams);
     console.log("Query result rows:", rows);
-    // Format dateSold to MM/DD/YYYY for each row
-    rows.forEach(row => {
-      if (row.dateSold && !isNaN(Date.parse(row.dateSold))) {
-        row.dateSold = new Date(row.dateSold).toLocaleDateString('en-US');
-      }
-    });
+
     await connection.end();
 
-    return corsResponse(200, { properties: rows });
+    return corsResponse(200, {
+       properties: rows.map(row => ({
+        ...row,
+        dateSoldFormatted: row.dateSoldFormatted || null
+      })) });
   } catch (error) {
     console.error("Caught error:", error);
     if (connection) await connection.end();
