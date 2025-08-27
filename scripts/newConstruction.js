@@ -51,15 +51,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${result.properties.map(p => `
-                                        <tr>
-                                            <td>${p.address}</td>
-                                            <td>$${Number(p.price).toLocaleString()}</td>
-                                            <td>${Number(p.sqFt).toLocaleString()}</td>
-                                            <td>${p.dateSold && !isNaN(Date.parse(p.dateSold)) ? new Date(p.dateSold).toLocaleDateString('en-US') : ''}</td>
-                                            <td>$${Number(p.dollarsPerSF).toLocaleString()}</td>
-                                        </tr>
-                                    `).join('')}
+                                    ${result.properties.map(p => {
+                                        let saleDate = '';
+                                        if (p.dateSold && !isNaN(Date.parse(p.dateSold))) {
+                                            saleDate = new Date(p.dateSold).toLocaleDateString('en-US');
+                                        }
+                                        return `
+                                            <tr>
+                                                <td>${p.address}</td>
+                                                <td>$${Number(p.price).toLocaleString()}</td>
+                                                <td>${Number(p.sqFt).toLocaleString()}</td>
+                                                <td>${saleDate}</td>
+                                                <td>$${Number(p.dollarsPerSF).toLocaleString()}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
                                 </tbody>
                             </table>
                         `;
