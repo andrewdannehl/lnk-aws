@@ -57,7 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <td>$${Number(p.price).toLocaleString()}</td>
                                             <td>${Number(p.sqFt).toLocaleString()}</td>
                                             <td>${new Date(p.dateSoldFormatted) || ''}</td>
-                                            <td>$${Number(p.pricePerSF).toLocaleString()}</td>
+                                            <td>${
+                                                !isNaN(parseFloat(p.dollarsPerSF))
+                                                    ? parseFloat(p.dollarsPerSF).toLocaleString()
+                                                    : p.dollarsPerSF || ''
+                                                }
+                                            </td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
