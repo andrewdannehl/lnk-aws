@@ -27,17 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 soldWithin,
                 builtWithin
             };
-                console.log('Payload sent to Lambda:', data);
-
-            try {
-                const response = await fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/query/newConstruction', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                builtWithin: parseInt(raw.builtWithin)
-            };
-                console.log('Payload sent to Lambda:', data);
+            console.log('Payload sent to Lambda:', data);
 
             try {
                 const response = await fetch('https://q2g27tp299.execute-api.us-east-2.amazonaws.com/query/newConstruction', {
@@ -62,13 +52,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.properties.map(p => `
+                                    ${result.properties.map(p => `
                                         <tr>
                                             <td>${p.address}</td>
                                             <td>$${Number(p.price).toLocaleString()}</td>
                                             <td>${Number(p.sqFt).toLocaleString()}</td>
-                                            <td>${new Date(p.dateSoldFormatted) || ''}</td>
-                                            <td>${
+                                            <td>${p.dateSoldFormatted || ''}</td>
+                                            <td>$${
                                                 !isNaN(parseFloat(p.dollarsPerSF))
                                                     ? parseFloat(p.dollarsPerSF).toLocaleString()
                                                     : p.dollarsPerSF || ''
