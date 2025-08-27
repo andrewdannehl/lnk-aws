@@ -5,7 +5,7 @@ const corsResponse = (statusCode, body) => ({
   headers: {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST",
+    "Access-Control-Allow-Methods": "GET, POST",
     "Access-Control-Allow-Credentials": "true"
   },
   body: JSON.stringify(body)
@@ -16,7 +16,7 @@ exports.handler = async (event) => {
   let parsedBody;
   
   // Only try to parse body for POST requests
-  if (event.httpMethod === 'POST') {
+  if (event.body) {
     try {
       parsedBody = JSON.parse(event.body);
     } catch (err) {
@@ -133,17 +133,21 @@ exports.handler = async (event) => {
 
     await connection.end();
 
-    // Format response based on the endpoint
+    // Format response based on endpoint
+    let responseBody;
     if (path.includes('address')) {
-      return corsResponse(200, { addresses: rows.map(row => row.address) });
+      responseBody = {
+        addresses: rows.map(row => row.address)
+      };
     } else {
-      return corsResponse(200, {
+      responseBody = {
         properties: rows.map(row => ({
           ...row,
           dateSoldFormatted: row.dateSoldFormatted || null
         }))
-      });
+      };
     }
+    return corsResponse(200, responseBody);
   } catch (error) {
     console.error("Caught error:", error);
     if (connection) await connection.end();

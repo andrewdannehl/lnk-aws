@@ -40,22 +40,20 @@ document.addEventListener('DOMContentLoaded', function () {
             fetch(`${API_BASE}/query/address?search=${encodeURIComponent(input)}`)
                 .then(res => {
                     if (!res.ok) {
-                        throw new Error(`Server returned ${res.status}`);
+                        throw new Error(`HTTP error! status: ${res.status}`);
                     }
                     return res.json();
                 })
                 .then(data => {
-                    if (data && Array.isArray(data.addresses)) {
-                        updateSuggestions(data.addresses);
-                    } else {
-                        console.error("Unexpected response format:", data);
-                        updateSuggestions([]);
+                    if (!data || !data.addresses) {
+                        throw new Error('Invalid response format');
                     }
+                    updateSuggestions(data.addresses);
                 })
                 .catch(err => {
                     console.error("Error searching addresses:", err);
                     queryMessage.textContent = 'Failed to search addresses. Please try again.';
-                    updateSuggestions([]);
+                    addressSuggestions.style.display = 'none';
                 });
         }, 300);
     });
