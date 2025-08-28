@@ -1,0 +1,18 @@
++---------------+---------------+------+-----+---------+----------------+
+| Field         | Type          | Null | Key | Default | Extra          |
++---------------+---------------+------+-----+---------+----------------+
+| id            | int           | NO   | PRI | NULL    | auto_increment |
+| propID        | varchar(255)  | YES  | MUL | NULL    |                |
+| address       | varchar(255)  | YES  |     | NULL    |                |
+| owner         | varchar(255)  | YES  |     | NULL    |                |
+| propertyClass | varchar(255)  | YES  |     | NULL    |                |
+| hood          | varchar(255)  | YES  |     | NULL    |                |
+| buildType     | varchar(255)  | YES  |     | NULL    |                |
+| improveType   | varchar(255)  | YES  |     | NULL    |                |
+| yrBuilt       | varchar(255)  | YES  |     | NULL    |                |
+| TAV           | varchar(255)  | YES  |     | NULL    |                |
+| price         | varchar(255)  | YES  |     | NULL    |                |
+| sqFt          | varchar(255)  | YES  |     | NULL    |                |
+| dateSold      | date          | YES  |     | NULL    |                |
+| dollarsPerSF  | decimal(10,2) | YES  |     | NULL    |                |
++---------------+---------------+------+-----+---------+----------------+

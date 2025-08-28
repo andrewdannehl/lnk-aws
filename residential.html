@@ -3,10 +3,26 @@
 <head>
   <title>Existing Residential</title>
   <link rel="stylesheet" href="styles/style.css" />
+  <script defer src="scripts/navbar.js"></script>
   <script defer src="scripts/residential.js"></script>
 </head>
 <body>
-  <h1>Residential Submission</h1>
+  <nav class="navbar">
+      <div class="nav-left">
+          <a href="index.html">Home</a>
+      </div>
+      <div class="account-menu">
+          <button class="account-btn">
+              <img src="assets/accountLogo.svg" alt="Account" width="24" height="24">
+          </button>
+          <div class="dropdown-menu">
+              <a href="#" class="settings-btn">Settings</a>
+              <a href="#" class="logout-btn">Logout</a>
+          </div>
+      </div>
+  </nav>
+
+    <h1>Residential Search</h1>
   <form id="residentialForm">
     <div class="address-container">
       <label for="address">Street Address</label>
@@ -19,6 +35,9 @@
 
     <label for="sqFt">Square Feet</label>
     <input type="text" id="sqFt" name="sqFt" readonly>
+
+    <label for="pricePerSqFt">Price per Square Foot</label>
+    <input type="text" id="pricePerSqFt" name="pricePerSqFt" readonly>
 
     <hr>
     <h2>Filters</h2>

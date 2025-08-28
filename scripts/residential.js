@@ -5,6 +5,48 @@ document.addEventListener('DOMContentLoaded', function () {
     const sqFtInput = document.querySelector('#sqFt');
     const form = document.querySelector('#residentialForm');
     const queryMessage = document.getElementById('queryMessage');
+    const pricePerSqFtInput = document.querySelector('#pricePerSqFt');
+
+    // Formatting functions
+    function formatPrice(price) {
+        if (!price) return '';
+        const numPrice = parseFloat(price.toString().replace(/[^0-9.-]+/g, ''));
+        if (isNaN(numPrice)) return '';
+        return `$${Math.round(numPrice).toLocaleString()}`;
+    }
+
+    function formatSqFt(sqFt) {
+        if (!sqFt) return '';
+        const numSqFt = parseFloat(sqFt.toString().replace(/[^0-9.-]+/g, ''));
+        if (isNaN(numSqFt)) return '';
+        return numSqFt >= 1000 ? numSqFt.toLocaleString() : numSqFt.toString();
+    }
+
+    // Calculate $/SF when price or sqFt changes
+    function calculateAndDisplayPricePerSqFt() {
+        const price = parseFloat(priceInput.value.replace(/[^0-9.-]+/g, ''));
+        const sqFt = parseFloat(sqFtInput.value.replace(/[^0-9.-]+/g, ''));
+        
+        if (!isNaN(price) && !isNaN(sqFt) && sqFt > 0) {
+            const pricePerSqFt = price / sqFt;
+            pricePerSqFtInput.value = `$${pricePerSqFt.toFixed(2)}`;
+        } else {
+            pricePerSqFtInput.value = '';
+        }
+    }
+
+    // Format inputs on change
+    priceInput.addEventListener('input', function(e) {
+        const rawValue = e.target.value.replace(/[^0-9.-]+/g, '');
+        e.target.value = formatPrice(rawValue);
+        calculateAndDisplayPricePerSqFt();
+    });
+
+    sqFtInput.addEventListener('input', function(e) {
+        const rawValue = e.target.value.replace(/[^0-9.-]+/g, '');
+        e.target.value = formatSqFt(rawValue);
+        calculateAndDisplayPricePerSqFt();
+    });
 
     // API Gateway base URL - matches your existing newConstruction.js setup
     const API_BASE = 'https://q2g27tp299.execute-api.us-east-2.amazonaws.com';
@@ -70,8 +112,14 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`${API_BASE}/query/property?address=${encodeURIComponent(selectedAddress)}`)
             .then(res => res.json())
             .then(data => {
-                priceInput.value = data.price || '';
-                sqFtInput.value = data.sqFt || '';
+                if (data.properties && data.properties[0]) {
+                    const property = data.properties[0];
+                    priceInput.value = formatPrice(property.price);
+                    sqFtInput.value = formatSqFt(property.sqFt);
+                    calculateAndDisplayPricePerSqFt();
+                } else {
+                    throw new Error('No property data found');
+                }
             })
             .catch(err => {
                 console.error("Error loading property:", err);
@@ -87,8 +135,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const raw = Object.fromEntries(formData.entries());
 
             // Adjust min/max values based on subject property
-            const priceNum = parseFloat(raw.price);
-            const sqFtNum = parseFloat(raw.sqFt);
+            const priceNum = parseFloat(raw.price.replace(/[^0-9.-]+/g, ''));
+            const sqFtNum = parseFloat(raw.sqFt.replace(/[^0-9.-]+/g, ''));
+
+            if (isNaN(priceNum) || isNaN(sqFtNum) || sqFtNum === 0) {
+                queryMessage.textContent = 'Please ensure price and square footage are valid numbers';
+                return;
+            }
 
             const minSqFtAdj = sqFtNum + parseFloat(raw.minSqFt);
             const maxSqFtAdj = sqFtNum + parseFloat(raw.maxSqFt);
@@ -96,6 +149,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const subjectPricePerSF = priceNum / sqFtNum;
             const minPricePerSFAdj = subjectPricePerSF + parseFloat(raw.minPricePerSF);
             const maxPricePerSFAdj = subjectPricePerSF + parseFloat(raw.maxPricePerSF);
+
+            if (isNaN(minPricePerSFAdj) || isNaN(maxPricePerSFAdj)) {
+                queryMessage.textContent = 'Error calculating price per square foot ranges';
+                return;
+            }
 
             const data = {
                 address: raw.address,
@@ -143,23 +201,29 @@ document.addEventListener('DOMContentLoaded', function () {
                             <thead>
                                 <tr style="background-color: #ddd;">
                                     <th onclick="sortTable(0)">Address <span class="sort-icon" data-col="0"></span></th>
-                                    <th onclick="sortTable(1)">Price ($) <span class="sort-icon" data-col="1"></span></th>
-                                    <th onclick="sortTable(2)">SqFt <span class="sort-icon" data-col="2"></span></th>
-                                    <th onclick="sortTable(3)">Sale Date <span class="sort-icon" data-col="3"></span></th>
-                                    <th onclick="sortTable(4)">$/SF <span class="sort-icon" data-col="4"></span></th>
+                                    <th onclick="sortTable(1)">Sale Date <span class="sort-icon" data-col="1"></span></th>
+                                    <th onclick="sortTable(2)">Improve Type <span class="sort-icon" data-col="2"></span></th>
+                                    <th onclick="sortTable(3)">Year Built <span class="sort-icon" data-col="3"></span></th>
+                                    <th onclick="sortTable(4)">SqFt <span class="sort-icon" data-col="4"></span></th>
+                                    <th onclick="sortTable(5)">TAV ($) <span class="sort-icon" data-col="5"></span></th>
+                                    <th onclick="sortTable(6)">Price ($) <span class="sort-icon" data-col="6"></span></th>
+                                    <th onclick="sortTable(7)">$/SF <span class="sort-icon" data-col="7"></span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${result.properties.map(p => `
                                     <tr>
                                         <td>${p.address}</td>
-                                        <td>$${Number(p.price).toLocaleString()}</td>
-                                        <td>${Number(p.sqFt).toLocaleString()}</td>
                                         <td>${p.dateSoldFormatted || ''}</td>
+                                        <td>${p.improveType || ''}</td>
+                                        <td>${p.yrBuilt || ''}</td>
+                                        <td>${Number(p.sqFt).toLocaleString()}</td>
+                                        <td>$${Number(p.TAV).toLocaleString()}</td>
+                                        <td>$${Number(p.price).toLocaleString()}</td>
                                         <td>$${
                                             !isNaN(parseFloat(p.dollarsPerSF))
-                                                ? parseFloat(p.dollarsPerSF).toLocaleString()
-                                                : p.dollarsPerSF || ''
+                                                ? parseFloat(p.dollarsPerSF).toFixed(2)
+                                                : ''
                                         }</td>
                                     </tr>
                                 `).join('')}

@@ -1,6 +1,50 @@
 document.addEventListener('DOMContentLoaded', function () {
     const queryForm = document.getElementById('newConstructionForm');
     const queryMessage = document.getElementById('queryMessage');
+    const priceInput = document.getElementById('price');
+    const sqFtInput = document.getElementById('sqFt');
+    const pricePerSqFtInput = document.getElementById('pricePerSqFt');
+
+    // Formatting functions
+    function formatPrice(price) {
+        if (!price) return '';
+        const numPrice = parseFloat(price.toString().replace(/[^0-9.-]+/g, ''));
+        if (isNaN(numPrice)) return '';
+        return `$${Math.round(numPrice).toLocaleString()}`;
+    }
+
+    function formatSqFt(sqFt) {
+        if (!sqFt) return '';
+        const numSqFt = parseFloat(sqFt.toString().replace(/[^0-9.-]+/g, ''));
+        if (isNaN(numSqFt)) return '';
+        return numSqFt >= 1000 ? numSqFt.toLocaleString() : numSqFt.toString();
+    }
+
+    // Calculate $/SF when price or sqFt changes
+    function calculateAndDisplayPricePerSqFt() {
+        const price = parseFloat(priceInput.value.replace(/[^0-9.-]+/g, ''));
+        const sqFt = parseFloat(sqFtInput.value.replace(/[^0-9.-]+/g, ''));
+        
+        if (!isNaN(price) && !isNaN(sqFt) && sqFt > 0) {
+            const pricePerSqFt = price / sqFt;
+            pricePerSqFtInput.value = `$${pricePerSqFt.toFixed(2)}`;
+        } else {
+            pricePerSqFtInput.value = '';
+        }
+    }
+
+    // Format inputs on change
+    priceInput.addEventListener('input', function(e) {
+        const rawValue = e.target.value.replace(/[^0-9.-]+/g, '');
+        e.target.value = formatPrice(rawValue);
+        calculateAndDisplayPricePerSqFt();
+    });
+
+    sqFtInput.addEventListener('input', function(e) {
+        const rawValue = e.target.value.replace(/[^0-9.-]+/g, '');
+        e.target.value = formatSqFt(rawValue);
+        calculateAndDisplayPricePerSqFt();
+    });
 
     if (queryForm) {
         queryForm.addEventListener('submit', async function (event) {
@@ -64,25 +108,30 @@ document.addEventListener('DOMContentLoaded', function () {
                             <thead>
                                 <tr style="background-color: #ddd;">
                                     <th onclick="sortTable(0)">Address <span class="sort-icon" data-col="0"></span></th>
-                                    <th onclick="sortTable(1)">Price ($) <span class="sort-icon" data-col="1"></span></th>
-                                    <th onclick="sortTable(2)">SqFt <span class="sort-icon" data-col="2"></span></th>
-                                    <th onclick="sortTable(3)">Sale Date <span class="sort-icon" data-col="3"></span></th>
-                                    <th onclick="sortTable(4)">$/SF <span class="sort-icon" data-col="4"></span></th>
+                                    <th onclick="sortTable(1)">Sale Date <span class="sort-icon" data-col="1"></span></th>
+                                    <th onclick="sortTable(2)">Improve Type <span class="sort-icon" data-col="2"></span></th>
+                                    <th onclick="sortTable(3)">Year Built <span class="sort-icon" data-col="3"></span></th>
+                                    <th onclick="sortTable(4)">SqFt <span class="sort-icon" data-col="4"></span></th>
+                                    <th onclick="sortTable(5)">TAV ($) <span class="sort-icon" data-col="5"></span></th>
+                                    <th onclick="sortTable(6)">Price ($) <span class="sort-icon" data-col="6"></span></th>
+                                    <th onclick="sortTable(7)">$/SF <span class="sort-icon" data-col="7"></span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${result.properties.map(p => `
                                     <tr>
                                         <td>${p.address}</td>
-                                        <td>$${Number(p.price).toLocaleString()}</td>
-                                        <td>${Number(p.sqFt).toLocaleString()}</td>
                                         <td>${p.dateSoldFormatted || ''}</td>
+                                        <td>${p.improveType || ''}</td>
+                                        <td>${p.yrBuilt || ''}</td>
+                                        <td>${Number(p.sqFt).toLocaleString()}</td>
+                                        <td>$${Number(p.TAV).toLocaleString()}</td>
+                                        <td>$${Number(p.price).toLocaleString()}</td>
                                         <td>$${
                                             !isNaN(parseFloat(p.dollarsPerSF))
-                                                ? parseFloat(p.dollarsPerSF).toLocaleString()
-                                                : p.dollarsPerSF || ''
-                                            }
-                                        </td>
+                                                ? parseFloat(p.dollarsPerSF).toFixed(2)
+                                                : ''
+                                        }</td>
                                     </tr>
                                 `).join('')}
                             </tbody>

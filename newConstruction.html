@@ -6,15 +6,33 @@
   <script defer src="scripts/newConstruction.js"></script>
 </head>
 <body>
-  <h1>New Construction Submission</h1>
+  <nav class="navbar">
+    <div class="nav-left">
+        <a href="index.html">Home</a>
+    </div>
+    <div class="account-menu">
+        <button class="account-btn">
+            <img src="assets/accountLogo.svg" alt="Account" width="24" height="24">
+        </button>
+        <div class="dropdown-menu">
+            <a href="#" class="settings-btn">Settings</a>
+            <a href="#" class="logout-btn">Logout</a>
+        </div>
+    </div>
+  </nav>
+
+  <h1>New Construction Search</h1>
 
   <form id="newConstructionForm">
   <!-- Only the following fields are used for the query: -->
   <label for="price">Price ($)</label>
   <input type="text" id="price" name="price" required>
 
-  <label for="sqFt">Square Feet</label>
+  <label for="sqFt">Square Feet (above grade)</label>
   <input type="text" id="sqFt" name="sqFt" required>
+
+  <label for="pricePerSqFt">Price per Square Foot</label>
+  <input type="text" id="pricePerSqFt" name="pricePerSqFt" readonly>
 
   <div class="slider-group">
     <div class="slider-label">

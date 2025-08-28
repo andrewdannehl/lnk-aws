@@ -5,8 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lancaster Property Valuation</title>
     <link rel="stylesheet" href="styles/style.css">
+    <script src="scripts/main.js"></script>
+    <script src="scripts/navbar.js"></script>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="index.html">Home</a>
+            <a href="newConstruction.html">New Construction</a>
+            <a href="residential.html">Residential</a>
+            <a href="commercial.html">Commercial</a>
+        </div>
+        <div class="account-menu">
+            <button class="account-btn">
+                <img src="assets/accountLogo.svg" alt="Account" width="24" height="24">
+            </button>
+            <div class="dropdown-menu">
+                <a href="#" class="settings-btn">Settings</a>
+                <a href="#" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
     <main>
         <h2>Select a Service</h2>
         <div class="flex-index">
@@ -24,7 +43,5 @@
             </div>
         </div>
     </main>
-    <div>test</div>
-    <script src="scripts/main.js"></script>
 </body>
 </html>

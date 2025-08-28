@@ -1,1 +1,0 @@
-# This file contains information about the assets used in the frontend, such as images or other media.
