@@ -1,0 +1,1 @@
+mysql -h lnk-property.c9i6csw6yrya.us-east-2.rds.amazonaws.com -P 3306 -u admin -p property

@@ -54,21 +54,31 @@ document.addEventListener('DOMContentLoaded', function () {
             const raw = Object.fromEntries(formData.entries());
 
             // ---- Adjust min/max values based on subject property ----
-            const priceNum = parseFloat(raw.price);
-            const sqFtNum = parseFloat(raw.sqFt);
+            const priceNum = parseFloat(raw.price.replace(/[^0-9.-]+/g, ''));
+            const sqFtNum = parseFloat(raw.sqFt.replace(/[^0-9.-]+/g, ''));
+            
+            // Only calculate adjustments if we have valid base numbers
+            let minPricePerSFAdj = null;
+            let maxPricePerSFAdj = null;
+            if (priceNum > 0 && sqFtNum > 0) {
+                const subjectPricePerSF = priceNum / sqFtNum;
+                const minPricePerSFDelta = parseFloat(raw.minPricePerSF);
+                const maxPricePerSFDelta = parseFloat(raw.maxPricePerSF);
+                minPricePerSFAdj = subjectPricePerSF + minPricePerSFDelta;
+                maxPricePerSFAdj = subjectPricePerSF + maxPricePerSFDelta;
+            }
 
-            const minSqFtAdj = sqFtNum + parseFloat(raw.minSqFt);
-            const maxSqFtAdj = sqFtNum + parseFloat(raw.maxSqFt);
-
-            const subjectPricePerSF = priceNum / sqFtNum;
-            const minPricePerSFAdj = subjectPricePerSF + parseFloat(raw.minPricePerSF);
-            const maxPricePerSFAdj = subjectPricePerSF + parseFloat(raw.maxPricePerSF);
+            // Handle square footage adjustments
+            const minSqFtDelta = parseFloat(raw.minSqFt);
+            const maxSqFtDelta = parseFloat(raw.maxSqFt);
+            const minSqFtAdj = sqFtNum + minSqFtDelta;
+            const maxSqFtAdj = sqFtNum + maxSqFtDelta;
 
             const data = {
                 minPricePerSF: minPricePerSFAdj,
                 maxPricePerSF: maxPricePerSFAdj,
-                minSqFt: minSqFtAdj,
-                maxSqFt: maxSqFtAdj,
+                minSqFt: minSqFtAdj > 0 ? minSqFtAdj : 0,  // Ensure we don't go below 0
+                maxSqFt: maxSqFtAdj > 0 ? maxSqFtAdj : 0,  // Ensure we don't go below 0
                 soldWithin: parseInt(raw.soldWithin),
                 builtWithin: parseInt(raw.builtWithin)
             };

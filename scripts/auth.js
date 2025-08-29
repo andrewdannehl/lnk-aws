@@ -3,6 +3,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('signupForm');
     const loginMessage = document.getElementById('loginMessage');
     const signupMessage = document.getElementById('signupMessage');
+    
+    // Handle logout functionality
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            sessionStorage.clear();
+            const baseUrl = window.location.pathname.includes('/lnk-aws/') ? '/lnk-aws/' : '/';
+            window.location.replace(baseUrl + 'login.html');
+        });
+    }
 
     // Handle login
     if (loginForm) {
@@ -24,12 +36,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     console.log('Login success:', data);
                     localStorage.setItem('token', data.token);
-                    // Redirect based on environment
-                    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-                        window.location.href = '/index.html';
-                    } else {
-                        window.location.href = '/lnk-aws/index.html';
+                    // Get base URL based on current path
+                    function getBaseUrl() {
+                        const path = window.location.pathname;
+                        return path.includes('/lnk-aws/') ? '/lnk-aws/' : '/';
                     }
+
+                    // Redirect to saved URL or default to index.html
+                    const baseUrl = getBaseUrl();
+                    const redirectUrl = sessionStorage.getItem('redirectUrl') || (baseUrl + 'index.html');
+                    sessionStorage.removeItem('redirectUrl'); // Clear stored URL
+                    window.location.replace(redirectUrl);
                 } else {
                     const errorData = await response.json();
                     console.log('Login error:', errorData);

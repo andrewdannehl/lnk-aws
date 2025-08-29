@@ -32,14 +32,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Handle logout
-    document.querySelector('.logout-btn').addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        // Clear JWT token from localStorage
-        localStorage.removeItem('jwt_token');
-        
-        // Redirect to login page
-        window.location.href = '/login.html';
-    });
 });
